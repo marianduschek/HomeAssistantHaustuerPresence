@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -140,6 +144,7 @@ class ConfidenceSensor(PresenceSensor):
 
     _attr_translation_key = "confidence"
     _attr_native_unit_of_measurement = "%"
+    _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:percent-circle-outline"
 
     def __init__(self, manager: PresenceManager) -> None:

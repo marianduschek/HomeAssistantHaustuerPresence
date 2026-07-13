@@ -112,10 +112,24 @@ allow_tracker_fallback: false
 `inside_areas` and `door_areas` contain Home Assistant area IDs, not display
 names. The selection-field editor handles these IDs automatically.
 
+## Measurement semantics
+
+A distance sensor reporting `unknown` means the proxy currently cannot hear
+the device. That is treated as distance evidence: the sensor contributes
+`max_distance` to the measurement vector, during both calibration and live
+classification. This matters at aluminium doors, where the inner proxy often
+loses the device completely while the person stands directly outside. Only
+`unavailable` sensors (proxy offline) are excluded entirely.
+
+Area transitions are detected against the last known Bermuda area, because
+area sensors routinely pass through `unknown` between two real areas.
+
 ## Calibration
 
 Calibration should contain several samples from every location that can be
-confused with the entrance.
+confused with the entrance. Always calibrate **both** inside and outside
+profiles: with only one class present there is no contrast and confidence
+values become meaninglessly high.
 
 Use **Developer tools → Actions → `haustuer_presence.record_sample`**:
 

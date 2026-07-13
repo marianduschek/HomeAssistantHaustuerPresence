@@ -145,13 +145,12 @@ class PresenceManager:
     ) -> None:
         """Handle one monitored entity changing."""
         entity_id = event.data["entity_id"]
-        old_state = event.data.get("old_state")
         new_state = event.data.get("new_state")
         if new_state is None:
             return
 
         if entity_id == self.settings.get(CONF_AREA_ENTITY):
-            self._handle_area_transition(old_state, new_state)
+            self._handle_area_transition(new_state)
         self.hass.async_create_task(self.async_evaluate(f"state_changed:{entity_id}"))
 
     @staticmethod
@@ -162,15 +161,20 @@ class PresenceManager:
         return state.attributes.get("area_id") or state.state
 
     @callback
-    def _handle_area_transition(
-        self,
-        old_state: State | None,
-        new_state: State,
-    ) -> None:
-        """Arm the departure sequence from a clear inside-to-door transition."""
-        old_area = self._area_key(old_state)
+    def _handle_area_transition(self, new_state: State) -> None:
+        """Arm the departure sequence from a clear inside-to-door transition.
+
+        Bermuda area sensors routinely pass through ``unknown`` between two
+        real areas, so transitions are detected against the last known area
+        instead of the immediately preceding state.
+        """
         new_area = self._area_key(new_state)
+        if new_area is None:
+            return
+        old_area = self.last_area
         self.last_area = new_area
+        if old_area == new_area:
+            return
         inside_areas = set(self.settings.get(CONF_INSIDE_AREAS, []))
         door_areas = set(self.settings.get(CONF_DOOR_AREAS, []))
         if old_area in inside_areas and new_area in door_areas:
@@ -194,14 +198,23 @@ class PresenceManager:
         )
         tracker_state = self._tracker_state()
         area_state = self._area_state()
+        inside_areas = set(self.settings.get(CONF_INSIDE_AREAS, []))
 
         effective_kind = self._effective_classification_kind()
-        if effective_kind == CLASS_UNKNOWN and area_state in set(
-            self.settings.get(CONF_INSIDE_AREAS, [])
-        ):
+        if effective_kind == CLASS_UNKNOWN and area_state in inside_areas:
             effective_kind = CLASS_INSIDE
         if effective_kind == CLASS_UNKNOWN and tracker_state == STATE_NOT_HOME:
             effective_kind = CLASS_AWAY
+
+        if self.phase == PHASE_DEPARTING and area_state in inside_areas:
+            self._set_phase(PHASE_IDLE, "departure_aborted_inside")
+
+        if (
+            self.phase == PHASE_ARMED
+            and area_state in inside_areas
+            and effective_kind == CLASS_INSIDE
+        ):
+            self._set_phase(PHASE_IDLE, "entered_inside_disarmed")
 
         if (
             tracker_state == STATE_NOT_HOME
@@ -210,6 +223,7 @@ class PresenceManager:
                 DEFAULT_ALLOW_TRACKER_FALLBACK,
             )
             and self.phase == PHASE_IDLE
+            and effective_kind != CLASS_INSIDE
         ):
             self._set_phase(PHASE_ARMED, "tracker_fallback_not_home")
 
@@ -223,22 +237,31 @@ class PresenceManager:
         elif self.phase in (PHASE_ARRIVING, PHASE_AUTHORIZED):
             if effective_kind == CLASS_INSIDE:
                 self._reset_runtime("entered_inside")
-            elif effective_kind != CLASS_OUTSIDE and not self.authorized:
+            elif (
+                effective_kind != CLASS_OUTSIDE
+                and not self.authorized
+                and self._window_cancel is None
+            ):
                 self._cancel_candidate("outside_candidate_lost")
 
         self.last_reason = reason
         self._notify_entities()
 
     def _read_distances(self) -> dict[str, float]:
-        """Read valid numeric states from configured measurement points."""
+        """Read valid numeric states from configured measurement points.
+
+        A proxy reporting ``unknown`` cannot hear the device right now, which
+        is genuine distance evidence, so it contributes ``max_distance``.
+        Only ``unavailable`` proxies (integration offline) are excluded.
+        """
         values: dict[str, float] = {}
         max_distance = float(self.settings.get(CONF_MAX_DISTANCE, DEFAULT_MAX_DISTANCE))
         for entity_id in self.settings.get(CONF_DISTANCE_ENTITIES, []):
             state = self.hass.states.get(entity_id)
-            if state is None or state.state in (
-                STATE_UNKNOWN,
-                STATE_UNAVAILABLE,
-            ):
+            if state is None or state.state == STATE_UNAVAILABLE:
+                continue
+            if state.state == STATE_UNKNOWN:
+                values[entity_id] = max_distance
                 continue
             try:
                 value = float(state.state)
@@ -360,6 +383,7 @@ class PresenceManager:
     def _cancel_candidate(self, reason: str) -> None:
         """Cancel a not-yet-confirmed candidate."""
         self._cancel_confirm()
+        self._cancel_window()
         self.candidate = False
         self.authorized = False
         self._set_phase(PHASE_ARMED, reason)

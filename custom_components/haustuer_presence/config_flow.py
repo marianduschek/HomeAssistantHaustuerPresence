@@ -280,7 +280,10 @@ def _as_yaml(values: Mapping[str, Any]) -> str:
 
 
 def _validate_config(hass: HomeAssistant, values: Mapping[str, Any]) -> None:
-    """Validate entity domains, selected areas, and point count."""
+    """Validate identity name, entity domains, areas, and point count."""
+    if not str(values.get(CONF_NAME, "")).strip():
+        raise vol.Invalid("Identity name is required")
+
     distances = values[CONF_DISTANCE_ENTITIES]
     if not distances:
         raise vol.Invalid("At least one distance sensor is required")
