@@ -1,4 +1,4 @@
-"""Binary sensors for Haustuer Presence."""
+"""Binary sensors for Doorstep Presence."""
 
 from __future__ import annotations
 

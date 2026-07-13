@@ -1,15 +1,16 @@
-"""Constants for the Haustuer Presence integration."""
+"""Constants for the Doorstep Presence integration."""
 
 from __future__ import annotations
 
 from typing import Final
 
-DOMAIN: Final = "haustuer_presence"
+DOMAIN: Final = "doorstep_presence"
 PLATFORMS: Final = ["sensor", "binary_sensor", "button"]
 
 CONF_NAME: Final = "name"
 CONF_AREA_ENTITY: Final = "area_entity"
 CONF_TRACKER_ENTITY: Final = "tracker_entity"
+CONF_CONFIRMATION_ENTITY: Final = "confirmation_entity"
 CONF_DISTANCE_ENTITIES: Final = "distance_entities"
 CONF_INSIDE_AREAS: Final = "inside_areas"
 CONF_DOOR_AREAS: Final = "door_areas"

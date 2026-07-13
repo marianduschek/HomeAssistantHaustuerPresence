@@ -1,4 +1,4 @@
-"""Haustuer Presence integration."""
+"""Doorstep Presence integration."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from .const import (
 )
 from .manager import PresenceManager
 
-type HaustuerPresenceConfigEntry = ConfigEntry[PresenceManager]
+type DoorstepPresenceConfigEntry = ConfigEntry[PresenceManager]
 
 
 def _legacy_list(value: str | list[str] | None) -> list[str]:
@@ -151,7 +151,7 @@ async def async_migrate_entry(
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: HaustuerPresenceConfigEntry,
+    entry: DoorstepPresenceConfigEntry,
 ) -> bool:
     """Set up one tracked person from a config entry."""
     manager = PresenceManager(hass, entry)
@@ -164,7 +164,7 @@ async def async_setup_entry(
 
 async def async_unload_entry(
     hass: HomeAssistant,
-    entry: HaustuerPresenceConfigEntry,
+    entry: DoorstepPresenceConfigEntry,
 ) -> bool:
     """Unload a tracked person."""
     if not await hass.config_entries.async_unload_platforms(entry, PLATFORMS):

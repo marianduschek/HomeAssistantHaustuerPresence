@@ -1,4 +1,4 @@
-"""Calibration buttons for Haustuer Presence."""
+"""Calibration buttons for Doorstep Presence."""
 
 from __future__ import annotations
 

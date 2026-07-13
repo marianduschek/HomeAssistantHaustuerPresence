@@ -7,10 +7,10 @@ record_sample:
       required: true
       selector:
         config_entry:
-          integration: haustuer_presence
+          integration: doorstep_presence
     profile:
       name: Profile
-      description: A location name such as WE2 Windfang or outside doorstep.
+      description: A location name such as vestibule or outside doorstep.
       required: true
       selector:
         text:
@@ -33,7 +33,7 @@ clear_calibration:
       required: true
       selector:
         config_entry:
-          integration: haustuer_presence
+          integration: doorstep_presence
     profile:
       name: Profile
       required: false
@@ -49,7 +49,7 @@ force_arm:
       required: true
       selector:
         config_entry:
-          integration: haustuer_presence
+          integration: doorstep_presence
 
 reset:
   name: Reset
@@ -60,4 +60,4 @@ reset:
       required: true
       selector:
         config_entry:
-          integration: haustuer_presence
+          integration: doorstep_presence

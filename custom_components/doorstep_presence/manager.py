@@ -8,7 +8,12 @@ from datetime import datetime
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_NOT_HOME, STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.const import (
+    STATE_NOT_HOME,
+    STATE_ON,
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import (
     Event,
     EventStateChangedData,
@@ -29,6 +34,7 @@ from .const import (
     CONF_ALLOW_TRACKER_FALLBACK,
     CONF_AREA_ENTITY,
     CONF_CONFIRM_SECONDS,
+    CONF_CONFIRMATION_ENTITY,
     CONF_COOLDOWN_SECONDS,
     CONF_DISTANCE_ENTITIES,
     CONF_DOOR_AREAS,
@@ -111,7 +117,11 @@ class PresenceManager:
     def monitored_entities(self) -> list[str]:
         """Return entities whose state changes affect classification."""
         entities = list(self.settings.get(CONF_DISTANCE_ENTITIES, []))
-        for key in (CONF_AREA_ENTITY, CONF_TRACKER_ENTITY):
+        for key in (
+            CONF_AREA_ENTITY,
+            CONF_TRACKER_ENTITY,
+            CONF_CONFIRMATION_ENTITY,
+        ):
             if entity_id := self.settings.get(key):
                 entities.append(entity_id)
         return list(dict.fromkeys(entities))
@@ -243,6 +253,18 @@ class PresenceManager:
                 and self._window_cancel is None
             ):
                 self._cancel_candidate("outside_candidate_lost")
+            elif (
+                not self.authorized
+                and not self.observe_only
+                and self._window_cancel is not None
+                and self._confirmation_ok()
+            ):
+                self.authorized = True
+                self.hass.bus.async_fire(
+                    EVENT_AUTHORIZED,
+                    {**self.event_data, "confirmed": True},
+                )
+                self._set_phase(PHASE_AUTHORIZED, "confirmation_detected")
 
         self.last_reason = reason
         self._notify_entities()
@@ -277,6 +299,18 @@ class PresenceManager:
         entity_id = self.settings.get(CONF_TRACKER_ENTITY)
         state = self.hass.states.get(entity_id) if entity_id else None
         return state.state if state is not None else None
+
+    def _confirmation_ok(self) -> bool:
+        """Check the optional person-detection requirement.
+
+        Without a configured confirmation entity, BLE alone authorizes.
+        With one, authorization additionally requires that entity to be on.
+        """
+        entity_id = self.settings.get(CONF_CONFIRMATION_ENTITY)
+        if not entity_id:
+            return True
+        state = self.hass.states.get(entity_id)
+        return state is not None and state.state == STATE_ON
 
     def _area_state(self) -> str | None:
         """Return the optional area sensor state."""
@@ -336,7 +370,7 @@ class PresenceManager:
             return
 
         self.candidate = True
-        self.authorized = not self.observe_only
+        self.authorized = not self.observe_only and self._confirmation_ok()
         self._set_phase(
             PHASE_AUTHORIZED if self.authorized else PHASE_ARRIVING,
             "outside_confirmed",

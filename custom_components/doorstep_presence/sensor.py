@@ -1,4 +1,4 @@
-"""Sensors for Haustuer Presence."""
+"""Sensors for Doorstep Presence."""
 
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ class PresenceSensor(SensorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, manager.entry.entry_id)},
             name=manager.name,
-            manufacturer="Haustuer Presence",
+            manufacturer="Doorstep Presence",
             model="Calibrated BLE presence classifier",
         )
 

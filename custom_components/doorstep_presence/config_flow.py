@@ -1,4 +1,4 @@
-"""Config flow for Haustuer Presence."""
+"""Config flow for Doorstep Presence."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ from .const import (
     CONF_ALLOW_TRACKER_FALLBACK,
     CONF_AREA_ENTITY,
     CONF_CONFIRM_SECONDS,
+    CONF_CONFIRMATION_ENTITY,
     CONF_COOLDOWN_SECONDS,
     CONF_DISTANCE_ENTITIES,
     CONF_DOOR_AREAS,
@@ -47,6 +48,7 @@ CONFIG_KEYS = {
     CONF_DISTANCE_ENTITIES,
     CONF_AREA_ENTITY,
     CONF_TRACKER_ENTITY,
+    CONF_CONFIRMATION_ENTITY,
     CONF_INSIDE_AREAS,
     CONF_DOOR_AREAS,
     CONF_CONFIRM_SECONDS,
@@ -96,31 +98,29 @@ def _normalize_input(user_input: Mapping[str, Any]) -> dict[str, Any]:
     )
     normalized[CONF_INSIDE_AREAS] = _list_value(normalized.get(CONF_INSIDE_AREAS))
     normalized[CONF_DOOR_AREAS] = _list_value(normalized.get(CONF_DOOR_AREAS))
-    for optional_entity in (CONF_AREA_ENTITY, CONF_TRACKER_ENTITY):
+    for optional_entity in (
+        CONF_AREA_ENTITY,
+        CONF_TRACKER_ENTITY,
+        CONF_CONFIRMATION_ENTITY,
+    ):
         if not normalized.get(optional_entity):
             normalized.pop(optional_entity, None)
     return normalized
 
 
+def _optional_key(values: Mapping[str, Any], key: str) -> vol.Optional:
+    """Return an optional schema key with a prefilled suggestion."""
+    if values.get(key):
+        return vol.Optional(key, description={"suggested_value": values[key]})
+    return vol.Optional(key)
+
+
 def _config_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
     """Return the identity and measurement-point schema."""
     values = {**_default_values(), **(defaults or {})}
-    area_key = (
-        vol.Optional(
-            CONF_AREA_ENTITY,
-            description={"suggested_value": values[CONF_AREA_ENTITY]},
-        )
-        if values.get(CONF_AREA_ENTITY)
-        else vol.Optional(CONF_AREA_ENTITY)
-    )
-    tracker_key = (
-        vol.Optional(
-            CONF_TRACKER_ENTITY,
-            description={"suggested_value": values[CONF_TRACKER_ENTITY]},
-        )
-        if values.get(CONF_TRACKER_ENTITY)
-        else vol.Optional(CONF_TRACKER_ENTITY)
-    )
+    area_key = _optional_key(values, CONF_AREA_ENTITY)
+    tracker_key = _optional_key(values, CONF_TRACKER_ENTITY)
+    confirmation_key = _optional_key(values, CONF_CONFIRMATION_ENTITY)
     return vol.Schema(
         {
             vol.Required(
@@ -138,6 +138,9 @@ def _config_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
             ),
             tracker_key: selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="device_tracker")
+            ),
+            confirmation_key: selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="binary_sensor")
             ),
             vol.Required(
                 CONF_INSIDE_AREAS,
@@ -298,6 +301,7 @@ def _validate_config(hass: HomeAssistant, values: Mapping[str, Any]) -> None:
     expected_domains = {
         CONF_AREA_ENTITY: "sensor.",
         CONF_TRACKER_ENTITY: "device_tracker.",
+        CONF_CONFIRMATION_ENTITY: "binary_sensor.",
     }
     for key, domain_prefix in expected_domains.items():
         if (entity_id := values.get(key)) and (
@@ -316,7 +320,7 @@ def _validate_config(hass: HomeAssistant, values: Mapping[str, Any]) -> None:
                 raise vol.Invalid(f"Invalid area: {area_id}")
 
 
-class HaustuerPresenceConfigFlow(
+class DoorstepPresenceConfigFlow(
     config_entries.ConfigFlow,
     domain=DOMAIN,
 ):
@@ -393,10 +397,10 @@ class HaustuerPresenceConfigFlow(
         config_entry: config_entries.ConfigEntry,
     ) -> config_entries.OptionsFlow:
         """Return the options flow."""
-        return HaustuerPresenceOptionsFlow()
+        return DoorstepPresenceOptionsFlow()
 
 
-class HaustuerPresenceOptionsFlow(config_entries.OptionsFlowWithReload):
+class DoorstepPresenceOptionsFlow(config_entries.OptionsFlowWithReload):
     """Edit measurement points and classifier behavior."""
 
     async def async_step_init(
