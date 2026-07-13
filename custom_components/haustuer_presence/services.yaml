@@ -1,0 +1,63 @@
+record_sample:
+  name: Record calibration sample
+  description: Store the current measurement vector in a named profile.
+  fields:
+    entry_id:
+      name: Person
+      required: true
+      selector:
+        config_entry:
+          integration: haustuer_presence
+    profile:
+      name: Profile
+      description: A location name such as WE2 Windfang or outside doorstep.
+      required: true
+      selector:
+        text:
+    kind:
+      name: Classification
+      required: true
+      selector:
+        select:
+          options:
+            - inside
+            - outside
+            - away
+
+clear_calibration:
+  name: Clear calibration
+  description: Delete one named profile or all profiles when profile is omitted.
+  fields:
+    entry_id:
+      name: Person
+      required: true
+      selector:
+        config_entry:
+          integration: haustuer_presence
+    profile:
+      name: Profile
+      required: false
+      selector:
+        text:
+
+force_arm:
+  name: Force arm
+  description: Arm the classifier for the next outside arrival.
+  fields:
+    entry_id:
+      name: Person
+      required: true
+      selector:
+        config_entry:
+          integration: haustuer_presence
+
+reset:
+  name: Reset
+  description: Reset transient movement state without deleting calibration.
+  fields:
+    entry_id:
+      name: Person
+      required: true
+      selector:
+        config_entry:
+          integration: haustuer_presence

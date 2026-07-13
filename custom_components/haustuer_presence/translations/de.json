@@ -1,0 +1,110 @@
+{
+  "title": "Haustür Presence",
+  "config": {
+    "step": {
+      "user": {
+        "title": "BLE-Identität hinzufügen",
+        "description": "Wähle alle Bermuda-Distanzsensoren, die beim Einmessen berücksichtigt werden sollen. Die Integration startet im Beobachtungsmodus.",
+        "data": {
+          "name": "Name der BLE-Identität",
+          "distance_entities": "Distanzsensoren der Messpunkte",
+          "area_entity": "Bermuda-Bereichssensor (optional)",
+          "tracker_entity": "Bermuda-Tracker (optional)",
+          "inside_areas": "Innenbereiche, mit Komma getrennt",
+          "door_areas": "Türbereiche, mit Komma getrennt",
+          "confirm_seconds": "Bestätigungsdauer",
+          "window_seconds": "Freigabefenster",
+          "cooldown_seconds": "Sperrzeit",
+          "min_points": "Mindestens verfügbare Messpunkte",
+          "max_distance": "Maximal ausgewertete Entfernung",
+          "max_profile_score": "Maximale Profilabweichung",
+          "min_confidence": "Minimale Klassifizierungssicherheit",
+          "observe_only": "Beobachtungsmodus",
+          "allow_tracker_fallback": "not_home-Tracker als Fallback verwenden"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Diese Person ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Klassifizierung konfigurieren",
+        "description": "Messpunkte hinzufügen oder entfernen und Zeiten anpassen. Vorhandene Messreihen bleiben erhalten.",
+        "data": {
+          "name": "Name der BLE-Identität",
+          "distance_entities": "Distanzsensoren der Messpunkte",
+          "area_entity": "Bermuda-Bereichssensor (optional)",
+          "tracker_entity": "Bermuda-Tracker (optional)",
+          "inside_areas": "Innenbereiche, mit Komma getrennt",
+          "door_areas": "Türbereiche, mit Komma getrennt",
+          "confirm_seconds": "Bestätigungsdauer",
+          "window_seconds": "Freigabefenster",
+          "cooldown_seconds": "Sperrzeit",
+          "min_points": "Mindestens verfügbare Messpunkte",
+          "max_distance": "Maximal ausgewertete Entfernung",
+          "max_profile_score": "Maximale Profilabweichung",
+          "min_confidence": "Minimale Klassifizierungssicherheit",
+          "observe_only": "Beobachtungsmodus",
+          "allow_tracker_fallback": "not_home-Tracker als Fallback verwenden"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "phase": {
+        "name": "Phase",
+        "state": {
+          "idle": "Inaktiv",
+          "departing": "Verlässt das Haus",
+          "armed": "Rückkehr scharf",
+          "arriving": "Kommt an",
+          "authorized": "Freigegeben",
+          "cooldown": "Sperrzeit"
+        }
+      },
+      "classification": {
+        "name": "Klassifizierung",
+        "state": {
+          "unknown": "Unbekannt",
+          "inside": "Innen",
+          "outside": "Außen",
+          "away": "Abwesend"
+        }
+      },
+      "confidence": {
+        "name": "Sicherheit"
+      }
+    },
+    "binary_sensor": {
+      "arrival_candidate": {
+        "name": "Ankunftskandidat"
+      },
+      "arrival_authorized": {
+        "name": "Ankunft freigegeben"
+      }
+    },
+    "button": {
+      "capture_inside": {
+        "name": "Innen-Messung aufnehmen"
+      },
+      "capture_outside": {
+        "name": "Außen-Messung aufnehmen"
+      },
+      "capture_away": {
+        "name": "Abwesend-Messung aufnehmen"
+      },
+      "clear_calibration": {
+        "name": "Einmessung löschen"
+      }
+    }
+  },
+  "exceptions": {
+    "entry_not_loaded": {
+      "message": "Konfigurationseintrag {entry_id} ist nicht geladen."
+    }
+  }
+}

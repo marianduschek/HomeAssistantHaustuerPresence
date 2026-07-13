@@ -1,0 +1,110 @@
+{
+  "title": "Haustür Presence",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add a tracked identity",
+        "description": "Select every Bermuda distance sensor that should participate in calibration. The integration starts in observation mode.",
+        "data": {
+          "name": "Identity name",
+          "distance_entities": "Measurement-point distance sensors",
+          "area_entity": "Bermuda area sensor (optional)",
+          "tracker_entity": "Bermuda tracker (optional)",
+          "inside_areas": "Inside area names, comma separated",
+          "door_areas": "Door area names, comma separated",
+          "confirm_seconds": "Confirmation delay",
+          "window_seconds": "Authorization window",
+          "cooldown_seconds": "Cooldown",
+          "min_points": "Minimum available measurement points",
+          "max_distance": "Maximum evaluated distance",
+          "max_profile_score": "Maximum profile deviation",
+          "min_confidence": "Minimum classification confidence",
+          "observe_only": "Observation mode",
+          "allow_tracker_fallback": "Allow not_home tracker fallback"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This identity is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure classifier",
+        "description": "Add or remove measurement points and tune timing. Existing calibration samples are preserved.",
+        "data": {
+          "name": "Identity name",
+          "distance_entities": "Measurement-point distance sensors",
+          "area_entity": "Bermuda area sensor (optional)",
+          "tracker_entity": "Bermuda tracker (optional)",
+          "inside_areas": "Inside area names, comma separated",
+          "door_areas": "Door area names, comma separated",
+          "confirm_seconds": "Confirmation delay",
+          "window_seconds": "Authorization window",
+          "cooldown_seconds": "Cooldown",
+          "min_points": "Minimum available measurement points",
+          "max_distance": "Maximum evaluated distance",
+          "max_profile_score": "Maximum profile deviation",
+          "min_confidence": "Minimum classification confidence",
+          "observe_only": "Observation mode",
+          "allow_tracker_fallback": "Allow not_home tracker fallback"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "phase": {
+        "name": "Phase",
+        "state": {
+          "idle": "Idle",
+          "departing": "Departing",
+          "armed": "Armed",
+          "arriving": "Arriving",
+          "authorized": "Authorized",
+          "cooldown": "Cooldown"
+        }
+      },
+      "classification": {
+        "name": "Classification",
+        "state": {
+          "unknown": "Unknown",
+          "inside": "Inside",
+          "outside": "Outside",
+          "away": "Away"
+        }
+      },
+      "confidence": {
+        "name": "Confidence"
+      }
+    },
+    "binary_sensor": {
+      "arrival_candidate": {
+        "name": "Arrival candidate"
+      },
+      "arrival_authorized": {
+        "name": "Arrival authorized"
+      }
+    },
+    "button": {
+      "capture_inside": {
+        "name": "Capture inside sample"
+      },
+      "capture_outside": {
+        "name": "Capture outside sample"
+      },
+      "capture_away": {
+        "name": "Capture away sample"
+      },
+      "clear_calibration": {
+        "name": "Clear calibration"
+      }
+    }
+  },
+  "exceptions": {
+    "entry_not_loaded": {
+      "message": "Config entry {entry_id} is not loaded."
+    }
+  }
+}
