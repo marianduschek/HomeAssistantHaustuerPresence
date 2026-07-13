@@ -4,17 +4,25 @@
     "step": {
       "user": {
         "title": "Add a tracked identity",
-        "description": "Select every Bermuda distance sensor that should participate in calibration. The integration starts in observation mode.",
+        "description": "Choose validated form fields or paste a complete per-device YAML configuration.",
+        "menu_options": {
+          "form": "Configure with selection fields",
+          "yaml": "Import YAML configuration"
+        }
+      },
+      "form": {
+        "title": "Configure BLE identity",
+        "description": "Select all Bermuda measurement points and Home Assistant areas. The integration starts in observation mode.",
         "data": {
           "name": "Identity name",
           "distance_entities": "Measurement-point distance sensors",
           "area_entity": "Bermuda area sensor (optional)",
           "tracker_entity": "Bermuda tracker (optional)",
-          "inside_areas": "Inside area names, comma separated",
-          "door_areas": "Door area names, comma separated",
+          "inside_areas": "Inside areas",
+          "door_areas": "Door areas",
           "confirm_seconds": "Confirmation delay",
           "window_seconds": "Authorization window",
-          "cooldown_seconds": "Cooldown",
+          "cooldown_seconds": "Classifier cooldown",
           "min_points": "Minimum available measurement points",
           "max_distance": "Maximum evaluated distance",
           "max_profile_score": "Maximum profile deviation",
@@ -22,27 +30,46 @@
           "observe_only": "Observation mode",
           "allow_tracker_fallback": "Allow not_home tracker fallback"
         }
+      },
+      "yaml": {
+        "title": "Import YAML configuration",
+        "description": "Paste one complete identity configuration. Entity IDs and area IDs are validated before saving.",
+        "data": {
+          "yaml_config": "Device configuration"
+        }
       }
     },
+    "error": {
+      "invalid_config": "Check the selected entities, areas, and minimum measurement-point count.",
+      "invalid_yaml": "The YAML is invalid or contains unavailable entities, areas, or unsupported keys."
+    },
     "abort": {
-      "already_configured": "This person is already configured."
+      "already_configured": "This identity is already configured."
     }
   },
   "options": {
     "step": {
       "init": {
+        "title": "Configure identity",
+        "description": "Edit using validated selection fields or export, edit, and re-import the complete YAML configuration.",
+        "menu_options": {
+          "form": "Edit with selection fields",
+          "yaml": "Edit as YAML"
+        }
+      },
+      "form": {
         "title": "Configure classifier",
-        "description": "Add or remove measurement points and tune timing. Existing calibration samples are preserved.",
+        "description": "Add or remove measurement points and adjust behavior. Existing calibration samples are preserved.",
         "data": {
           "name": "Identity name",
           "distance_entities": "Measurement-point distance sensors",
           "area_entity": "Bermuda area sensor (optional)",
           "tracker_entity": "Bermuda tracker (optional)",
-          "inside_areas": "Inside area names, comma separated",
-          "door_areas": "Door area names, comma separated",
+          "inside_areas": "Inside areas",
+          "door_areas": "Door areas",
           "confirm_seconds": "Confirmation delay",
           "window_seconds": "Authorization window",
-          "cooldown_seconds": "Cooldown",
+          "cooldown_seconds": "Classifier cooldown",
           "min_points": "Minimum available measurement points",
           "max_distance": "Maximum evaluated distance",
           "max_profile_score": "Maximum profile deviation",
@@ -50,7 +77,18 @@
           "observe_only": "Observation mode",
           "allow_tracker_fallback": "Allow not_home tracker fallback"
         }
+      },
+      "yaml": {
+        "title": "Edit complete YAML configuration",
+        "description": "The current configuration is prefilled. Edit it and save; all references are validated.",
+        "data": {
+          "yaml_config": "Device configuration"
+        }
       }
+    },
+    "error": {
+      "invalid_config": "Check the selected entities, areas, and minimum measurement-point count.",
+      "invalid_yaml": "The YAML is invalid or contains unavailable entities, areas, or unsupported keys."
     }
   },
   "entity": {

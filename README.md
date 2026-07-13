@@ -72,10 +72,45 @@ Select:
 1. every Bermuda `Distance to ...` sensor that should be compared,
 2. the Bermuda area sensor, if available,
 3. the Bermuda tracker, if available,
-4. inside and doorway area names used for departure direction,
+4. one or more inside and doorway areas using validated area selectors,
 5. timing, minimum-point, profile-deviation, and confidence settings.
 
 Keep **Observation mode** enabled initially.
+
+Every config entry remains editable under **Settings → Devices & services →
+Integrations → Haustür Presence → Configure**. The options flow offers both
+validated selection fields and a complete YAML editor.
+
+### YAML setup and editing
+
+Choose **Import YAML configuration** while adding an identity, or **Edit as
+YAML** in an existing entry. The editor validates entity IDs, HA area IDs,
+unknown keys, and the configured minimum measurement-point count.
+
+```yaml
+name: Example iPhone
+distance_entities:
+  - sensor.example_distance_to_door
+  - sensor.example_distance_to_hall
+area_entity: sensor.example_area
+tracker_entity: device_tracker.example_bermuda_tracker
+inside_areas:
+  - hallway
+door_areas:
+  - entrance
+confirm_seconds: 1
+window_seconds: 30
+cooldown_seconds: 20
+min_points: 2
+max_distance: 30
+max_profile_score: 0.5
+min_confidence: 0.2
+observe_only: true
+allow_tracker_fallback: false
+```
+
+`inside_areas` and `door_areas` contain Home Assistant area IDs, not display
+names. The selection-field editor handles these IDs automatically.
 
 ## Calibration
 

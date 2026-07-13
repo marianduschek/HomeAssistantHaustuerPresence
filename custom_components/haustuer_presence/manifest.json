@@ -4,9 +4,9 @@
   "codeowners": ["@marianduschek"],
   "config_flow": true,
   "documentation": "https://github.com/marianduschek/HomeAssistantHaustuerPresence",
-  "integration_type": "helper",
+  "integration_type": "hub",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/marianduschek/HomeAssistantHaustuerPresence/issues",
   "requirements": [],
-  "version": "0.1.0"
+  "version": "0.2.0"
 }

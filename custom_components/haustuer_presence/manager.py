@@ -9,7 +9,13 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_NOT_HOME, STATE_UNAVAILABLE, STATE_UNKNOWN
-from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
+from homeassistant.core import (
+    Event,
+    EventStateChangedData,
+    HomeAssistant,
+    State,
+    callback,
+)
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_call_later, async_track_state_change_event
 from homeassistant.helpers.storage import Store
@@ -115,7 +121,7 @@ class PresenceManager:
         self.calibration = CalibrationModel.from_dict(await self._store.async_load())
         if area_entity := self.settings.get(CONF_AREA_ENTITY):
             state = self.hass.states.get(area_entity)
-            self.last_area = state.state if state is not None else None
+            self.last_area = self._area_key(state)
 
         self.entry.async_on_unload(
             async_track_state_change_event(
@@ -145,19 +151,25 @@ class PresenceManager:
             return
 
         if entity_id == self.settings.get(CONF_AREA_ENTITY):
-            self._handle_area_transition(
-                old_state.state if old_state else None,
-                new_state.state,
-            )
+            self._handle_area_transition(old_state, new_state)
         self.hass.async_create_task(self.async_evaluate(f"state_changed:{entity_id}"))
+
+    @staticmethod
+    def _area_key(state: State | None) -> str | None:
+        """Return the stable HA area ID exposed by Bermuda."""
+        if state is None or state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            return None
+        return state.attributes.get("area_id") or state.state
 
     @callback
     def _handle_area_transition(
         self,
-        old_area: str | None,
-        new_area: str,
+        old_state: State | None,
+        new_state: State,
     ) -> None:
         """Arm the departure sequence from a clear inside-to-door transition."""
+        old_area = self._area_key(old_state)
+        new_area = self._area_key(new_state)
         self.last_area = new_area
         inside_areas = set(self.settings.get(CONF_INSIDE_AREAS, []))
         door_areas = set(self.settings.get(CONF_DOOR_AREAS, []))
@@ -247,7 +259,7 @@ class PresenceManager:
         """Return the optional area sensor state."""
         entity_id = self.settings.get(CONF_AREA_ENTITY)
         state = self.hass.states.get(entity_id) if entity_id else None
-        return state.state if state is not None else None
+        return self._area_key(state)
 
     def _effective_classification_kind(self) -> str:
         """Reject classifications whose confidence is below the safety floor."""

@@ -8,9 +8,13 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers import area_registry as ar
 
 from .const import (
     CALIBRATION_KINDS,
+    CONF_COOLDOWN_SECONDS,
+    CONF_DOOR_AREAS,
+    CONF_INSIDE_AREAS,
     DOMAIN,
     PLATFORMS,
     SERVICE_CLEAR_CALIBRATION,
@@ -21,6 +25,38 @@ from .const import (
 from .manager import PresenceManager
 
 type HaustuerPresenceConfigEntry = ConfigEntry[PresenceManager]
+
+
+def _legacy_list(value: str | list[str] | None) -> list[str]:
+    """Normalize values stored by version 1."""
+    if isinstance(value, list):
+        return value
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def _migrate_settings(
+    hass: HomeAssistant,
+    settings: dict[str, Any],
+) -> dict[str, Any]:
+    """Convert legacy area names to stable HA area IDs."""
+    migrated = dict(settings)
+    registry = ar.async_get(hass)
+    areas = registry.async_list_areas()
+    names_to_ids = {area.name: area.id for area in areas}
+    valid_ids = {area.id for area in areas}
+    for key in (CONF_INSIDE_AREAS, CONF_DOOR_AREAS):
+        if key in migrated:
+            migrated[key] = [
+                item if item in valid_ids else names_to_ids[item]
+                for item in _legacy_list(migrated.get(key))
+                if item in valid_ids or item in names_to_ids
+            ]
+    if migrated.get(CONF_COOLDOWN_SECONDS) == 600:
+        migrated[CONF_COOLDOWN_SECONDS] = 20
+    return migrated
+
 
 SERVICE_ENTRY_SCHEMA = vol.Schema(
     {
@@ -93,6 +129,23 @@ async def async_setup(hass: HomeAssistant, _config: dict[str, Any]) -> bool:
         reset,
         schema=SERVICE_ENTRY_SCHEMA,
     )
+    return True
+
+
+async def async_migrate_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> bool:
+    """Migrate version 1 text areas to version 2 selector values."""
+    if entry.version > 2:
+        return False
+    if entry.version == 1:
+        hass.config_entries.async_update_entry(
+            entry,
+            data=_migrate_settings(hass, dict(entry.data)),
+            options=_migrate_settings(hass, dict(entry.options)),
+            version=2,
+        )
     return True
 
 

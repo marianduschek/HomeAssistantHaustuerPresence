@@ -4,17 +4,25 @@
     "step": {
       "user": {
         "title": "BLE-Identität hinzufügen",
-        "description": "Wähle alle Bermuda-Distanzsensoren, die beim Einmessen berücksichtigt werden sollen. Die Integration startet im Beobachtungsmodus.",
+        "description": "Nutze validierte Auswahlfelder oder füge eine vollständige YAML-Konfiguration für ein Gerät ein.",
+        "menu_options": {
+          "form": "Mit Auswahlfeldern einrichten",
+          "yaml": "YAML-Konfiguration importieren"
+        }
+      },
+      "form": {
+        "title": "BLE-Identität konfigurieren",
+        "description": "Wähle alle Bermuda-Messpunkte und Home-Assistant-Bereiche aus. Die Integration startet im Beobachtungsmodus.",
         "data": {
           "name": "Name der BLE-Identität",
           "distance_entities": "Distanzsensoren der Messpunkte",
           "area_entity": "Bermuda-Bereichssensor (optional)",
           "tracker_entity": "Bermuda-Tracker (optional)",
-          "inside_areas": "Innenbereiche, mit Komma getrennt",
-          "door_areas": "Türbereiche, mit Komma getrennt",
+          "inside_areas": "Innenbereiche",
+          "door_areas": "Türbereiche",
           "confirm_seconds": "Bestätigungsdauer",
           "window_seconds": "Freigabefenster",
-          "cooldown_seconds": "Sperrzeit",
+          "cooldown_seconds": "Klassifizierungs-Sperrzeit",
           "min_points": "Mindestens verfügbare Messpunkte",
           "max_distance": "Maximal ausgewertete Entfernung",
           "max_profile_score": "Maximale Profilabweichung",
@@ -22,7 +30,18 @@
           "observe_only": "Beobachtungsmodus",
           "allow_tracker_fallback": "not_home-Tracker als Fallback verwenden"
         }
+      },
+      "yaml": {
+        "title": "YAML-Konfiguration importieren",
+        "description": "Füge eine vollständige Geräte-Konfiguration ein. Entitäten und Bereiche werden vor dem Speichern validiert.",
+        "data": {
+          "yaml_config": "Geräte-Konfiguration"
+        }
       }
+    },
+    "error": {
+      "invalid_config": "Prüfe die ausgewählten Entitäten, Bereiche und die Mindestanzahl der Messpunkte.",
+      "invalid_yaml": "Das YAML ist ungültig oder enthält nicht verfügbare Entitäten, Bereiche oder unbekannte Schlüssel."
     },
     "abort": {
       "already_configured": "Diese Person ist bereits eingerichtet."
@@ -31,18 +50,26 @@
   "options": {
     "step": {
       "init": {
+        "title": "BLE-Identität konfigurieren",
+        "description": "Bearbeite die Einstellungen über validierte Auswahlfelder oder als vollständige YAML-Konfiguration.",
+        "menu_options": {
+          "form": "Mit Auswahlfeldern bearbeiten",
+          "yaml": "Als YAML bearbeiten"
+        }
+      },
+      "form": {
         "title": "Klassifizierung konfigurieren",
-        "description": "Messpunkte hinzufügen oder entfernen und Zeiten anpassen. Vorhandene Messreihen bleiben erhalten.",
+        "description": "Messpunkte hinzufügen oder entfernen und das Verhalten anpassen. Vorhandene Messreihen bleiben erhalten.",
         "data": {
           "name": "Name der BLE-Identität",
           "distance_entities": "Distanzsensoren der Messpunkte",
           "area_entity": "Bermuda-Bereichssensor (optional)",
           "tracker_entity": "Bermuda-Tracker (optional)",
-          "inside_areas": "Innenbereiche, mit Komma getrennt",
-          "door_areas": "Türbereiche, mit Komma getrennt",
+          "inside_areas": "Innenbereiche",
+          "door_areas": "Türbereiche",
           "confirm_seconds": "Bestätigungsdauer",
           "window_seconds": "Freigabefenster",
-          "cooldown_seconds": "Sperrzeit",
+          "cooldown_seconds": "Klassifizierungs-Sperrzeit",
           "min_points": "Mindestens verfügbare Messpunkte",
           "max_distance": "Maximal ausgewertete Entfernung",
           "max_profile_score": "Maximale Profilabweichung",
@@ -50,7 +77,18 @@
           "observe_only": "Beobachtungsmodus",
           "allow_tracker_fallback": "not_home-Tracker als Fallback verwenden"
         }
+      },
+      "yaml": {
+        "title": "Vollständige YAML-Konfiguration bearbeiten",
+        "description": "Die aktuelle Konfiguration ist vorausgefüllt. Bearbeite und speichere sie; alle Referenzen werden validiert.",
+        "data": {
+          "yaml_config": "Geräte-Konfiguration"
+        }
       }
+    },
+    "error": {
+      "invalid_config": "Prüfe die ausgewählten Entitäten, Bereiche und die Mindestanzahl der Messpunkte.",
+      "invalid_yaml": "Das YAML ist ungültig oder enthält nicht verfügbare Entitäten, Bereiche oder unbekannte Schlüssel."
     }
   },
   "entity": {
